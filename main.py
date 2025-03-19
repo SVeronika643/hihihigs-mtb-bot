@@ -1,10 +1,10 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
-
+from config import TOKEN
 
 #экземпляр бота и диспетчера
-bot = Bot(token="ВАШ ТОКЕН")
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 #бот принимает команды
