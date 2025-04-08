@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from config import TOKEN
 
-#экземпляр бота и диспетчера
+#экземпляр бота и диспетчера+
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
@@ -20,6 +20,10 @@ async def echo_message(message):
 
 async def main():
     await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 
 if __name__ == "__main__":
