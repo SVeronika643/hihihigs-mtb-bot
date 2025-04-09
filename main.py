@@ -1,33 +1,25 @@
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
+from aiogram.types import BotCommand
 from config import TOKEN
-from handlers import router, send_random_value
-from handlers.keyboard import get_random_keyboard
 
+from handlers.handlers import router as handlers_router
+from handlers.bot_commands import set_commands
+
+bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
+# Подключаем маршрутизаторы
+dp.include_router(handlers_router)
 
-async def set_commands(bot: Bot):
-    commands = [
-        BotCommand(command="start", description="Запустить бота"),
-        BotCommand(command="status", description="Проверить статус"),
-        BotCommand(command="help", description="Помощь"),
-        BotCommand(command="random", description="Получить случайное значение"),
-    ]
-    await bot.set_my_commands(commands)
+# Регистрируем команды
+dp.startup.register(set_commands)
 
-
-async def main() -> None:
-    bot = Bot(token=TOKEN)
-    dp.include_router(router)
-    dp.startup.register(lambda: set_commands(bot))
-
-    # Регистрируем обработчик callback
-    dp.callback_query.register(send_random_value, lambda c: c.data == "random_value")
-
+# Запуск бота
+async def main():
     await dp.start_polling(bot)
 
-
+# Правильная проверка запуска
 if __name__ == "__main__":
     asyncio.run(main())
