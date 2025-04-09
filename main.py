@@ -1,11 +1,30 @@
+import logging
 import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from config import TOKEN
+
 from handlers import router, send_random_value
 from handlers.keyboard import get_random_keyboard
 
+from utils import setup_logger
+
+#установка логирования по умолчанию
+#logging.basicConfig(level=logging.INFO)
+
+#запуск логирования
+setup_logger(fname=__name__)
+
+
 dp = Dispatcher()
+
+
+
+#бот принимает команды
+@dp.message(Command('start'))
+async def process_start_command(message):
+    await message.answer("Привет!")
+    logging.info(f"Пользователь с id={message.from_user.id} запустил бота")
 
 
 async def set_commands(bot: Bot):
@@ -16,6 +35,13 @@ async def set_commands(bot: Bot):
         BotCommand(command="random", description="Получить случайное значение"),
     ]
     await bot.set_my_commands(commands)
+
+
+
+@dp.message()
+async def echo_message(message):
+    await message.answer(message.text)
+    logging.debug(f"Пользователь с id={message.from_user.id} прислал необрабатываемую команду")
 
 
 async def main() -> None:
