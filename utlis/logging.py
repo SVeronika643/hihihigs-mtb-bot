@@ -1,9 +1,17 @@
+import os
 import logging
 
-def setup_logger(level: int=logging.INFO, fname: str=__name__) -> None:
-    loggig.basicConfig(
-        level=level,
-        format="%(asctime)s %(levelname)s | %(name)s: %(message)s",
-        handlers=[logging.FileHandler(f"logs/{fname}.log", mode="w"), ],
-        datefmt ="[%d-%n-%Y %H:%M:%S]",
+
+def setup_logger(fname: str):
+    # Создание папки logs
+    if not os.path.exists('logs'):
+        os.makedirs('logs')
+
+    # Настройка логирования
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[
+            logging.FileHandler(f"logs/{fname}.log", mode="w"),
+            logging.StreamHandler()
+        ]
     )
