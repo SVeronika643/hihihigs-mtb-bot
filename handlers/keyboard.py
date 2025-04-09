@@ -10,3 +10,9 @@ import aiogram.types
 
 # Здесь создать клавиатуры
 keyboard = None
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
+def get_random_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Получить случайное значение", callback_data="random_value")
+    return builder.as_markup()

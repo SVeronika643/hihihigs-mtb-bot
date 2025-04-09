@@ -1,5 +1,8 @@
 # Файл __init__.py.py позволяет обращаться к папке как к модулю
 # и импортировать из него содержимое
 
-from .handlers import register_message_handlers
-from .bot_commands import set_my_commands
+
+from .handlers import router
+from .callbacks import send_random_value
+
+__all__ = ['router', 'send_random_value']
