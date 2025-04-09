@@ -1,4 +1,4 @@
-import aiogram.types
+
 
 
 # TODO - создайте клавиатуру, которая будет появляться в сообщении либо находится там постоянно
@@ -8,5 +8,20 @@ import aiogram.types
 # Примеры создания клавиатуры Keyboard builder https://mastergroosha.github.io/aiogram-3-guide/buttons/
 
 
-# Здесь создать клавиатуры
-keyboard = None
+
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+
+# Список кнопок для клавиатуры
+kb_list = [
+    [KeyboardButton(text="📖 О нас"),]
+]
+
+# Создание клавиатуры
+keyboard = ReplyKeyboardMarkup(keyboard=kb_list, resize_keyboard=True, one_time_keyboard=True)
+
+# Экспортируем переменную keyboard
+all = ['keyboard']
+
+
+# Импортируем клавиатуру
+#from handlers.keyboard import keyboard
