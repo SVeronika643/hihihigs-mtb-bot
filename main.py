@@ -22,7 +22,6 @@ async def set_commands(bot: Bot):
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="status", description="Проверить статус"),
         BotCommand(command="help", description="Помощь"),
-        BotCommand(command="random", description="Получить случайное значение"),
     ]
     await bot.set_my_commands(commands)
 
