@@ -1,6 +1,7 @@
 
 
 
+
 # TODO - создайте клавиатуру, которая будет появляться в сообщении либо находится там постоянно
 # Статичная клавиатура ReplyKeyboardMarkup https://docs.aiogram.dev/en/v3.15.0/api/types/reply_keyboard_markup.html
 # Динамически генерируемая клавиатура Keyboard builder https://docs.aiogram.dev/en/v3.15.0/utils/keyboard.html
@@ -19,6 +20,7 @@ def get_random_keyboard():
     return builder.as_markup()
 
 
+
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
 # Список кнопок для клавиатуры
@@ -30,9 +32,13 @@ kb_list = [
 keyboard = ReplyKeyboardMarkup(keyboard=kb_list, resize_keyboard=True, one_time_keyboard=True)
 
 # Экспортируем переменную keyboard
+
 all = ['keyboard']
 
 
 # Импортируем клавиатуру
 #from handlers.keyboard import keyboard
+
+
+all = ['keyboard']
 
