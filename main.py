@@ -1,59 +1,41 @@
 import logging
 import asyncio
+import os
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
+from aiogram.types import BotCommand
+from handlers import handlers, callbacks
 from config import TOKEN
 
-from handlers import router, send_random_value
-from handlers.keyboard import get_random_keyboard
+from handlers.handlers import router
+from utils.logging import setup_logger  # Импорт логирования
 
-from utils import setup_logger
-
-#установка логирования по умолчанию
-#logging.basicConfig(level=logging.INFO)
-
-#запуск логирования
-setup_logger(fname=__name__)
-
-
-dp = Dispatcher()
-
-
-
-#бот принимает команды
-@dp.message(Command('start'))
-async def process_start_command(message):
-    await message.answer("Привет!")
-    logging.info(f"Пользователь с id={message.from_user.id} запустил бота")
-
-
+# --- Функция установки команд ---
 async def set_commands(bot: Bot):
     commands = [
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="status", description="Проверить статус"),
         BotCommand(command="help", description="Помощь"),
-        BotCommand(command="random", description="Получить случайное значение"),
     ]
     await bot.set_my_commands(commands)
 
+# Запуск бота
+async def main():
 
+    # --- Включаем логирование ---
+    setup_logger(fname="bot")
 
-@dp.message()
-async def echo_message(message):
-    await message.answer(message.text)
-    logging.debug(f"Пользователь с id={message.from_user.id} прислал необрабатываемую команду")
-
-
-async def main() -> None:
+    # Создаём бота и диспетчер
     bot = Bot(token=TOKEN)
-    dp.include_router(router)
-    dp.startup.register(lambda: set_commands(bot))
+    dp = Dispatcher()
 
-    # Регистрируем обработчик callback
-    dp.callback_query.register(send_random_value, lambda c: c.data == "random_value")
+    # Регистрируем команды
+    dp.startup.register(set_commands)
 
+    # Подключаем маршрутизаторы
+    dp.include_router(handlers.router)
+    dp.include_router(callbacks.router)
     await dp.start_polling(bot)
-
 
 if __name__ == "__main__":
     asyncio.run(main())
