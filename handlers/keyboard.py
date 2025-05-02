@@ -1,12 +1,7 @@
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram import types
 
-# Список кнопок для клавиатуры
-kb_list = [
-    [KeyboardButton(text="📖 О нас"),]
-]
-
-# Создание клавиатуры
-keyboard = ReplyKeyboardMarkup(keyboard=kb_list, resize_keyboard=True, one_time_keyboard=True)
-
-# Экспортируем переменную keyboard
-all = ['keyboard']
+def keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(text="📖 О нас",callback_data="button"))
+    return builder.as_markup()
