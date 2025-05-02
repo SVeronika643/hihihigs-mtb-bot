@@ -9,13 +9,6 @@ from config import TOKEN
 from handlers.handlers import router
 from utils.logging import setup_logger  # Импорт логирования
 
-# --- Включаем логирование ---
-setup_logger(fname="bot")
-
-# Создаём бота и диспетчер
-bot = Bot(token=TOKEN)
-dp = Dispatcher()
-
 # --- Функция установки команд ---
 async def set_commands(bot: Bot):
     commands = [
@@ -25,14 +18,21 @@ async def set_commands(bot: Bot):
     ]
     await bot.set_my_commands(commands)
 
-# Регистрируем команды
-dp.startup.register(set_commands)
-
-# Подключаем маршрутизаторы
-dp.include_router(router)
-
 # Запуск бота
 async def main():
+
+    # --- Включаем логирование ---
+    setup_logger(fname="bot")
+
+    # Создаём бота и диспетчер
+    bot = Bot(token=TOKEN)
+    dp = Dispatcher()
+
+    # Регистрируем команды
+    dp.startup.register(set_commands)
+
+    # Подключаем маршрутизаторы
+    dp.include_router(router)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
