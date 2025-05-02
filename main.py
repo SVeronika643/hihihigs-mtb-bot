@@ -4,6 +4,7 @@ import os
 from aiogram import Bot, Dispatcher
 from aiogram.filters import Command
 from aiogram.types import BotCommand
+from handlers import handlers, callbacks
 from config import TOKEN
 
 from handlers.handlers import router
@@ -32,7 +33,8 @@ async def main():
     dp.startup.register(set_commands)
 
     # Подключаем маршрутизаторы
-    dp.include_router(router)
+    dp.include_router(handlers.router)
+    dp.include_router(callbacks.router)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
