@@ -1,12 +1,25 @@
-﻿aiofiles==24.1.0
+﻿Collecting aiosqlite
+  Obtaining dependency information for aiosqlite from https://files.pythonhosted.org/packages/f5/10/6c25ed6de94c49f88a91fa5018cb4c0f3625f31d5be9f771ebe5cc7cd506/aiosqlite-0.21.0-py3-none-any.whl.metadata
+  Downloading aiosqlite-0.21.0-py3-none-any.whl.metadata (4.3 kB)
+Requirement already satisfied: typing_extensions>=4.0 in c:\users\79379\pycharmprojects\hihihigs-mtb-bot\.venv\lib\site-packages (from aiosqlite) (4.12.2)
+Downloading aiosqlite-0.21.0-py3-none-any.whl (15 kB)
+Installing collected packages: aiosqlite
+Successfully installed aiosqlite-0.21.0
+
+[notice] A new release of pip is available: 23.2.1 -> 25.1.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+(.venv) PS C:\Users\79379\PycharmProjects\hihihigs-mtb-bot> pip freeze
+aiofiles==24.1.0
 aiogram==3.18.0
-aiohappyeyeballs==2.5.0
+aiohappyeyeballs==2.4.6
 aiohttp==3.11.13
 aiosignal==1.3.2
+aiosqlite==0.21.0
 annotated-types==0.7.0
 attrs==25.1.0
 certifi==2025.1.31
 frozenlist==1.5.0
+greenlet==3.2.2
 idna==3.10
 magic-filter==1.0.12
 multidict==6.1.0
@@ -14,5 +27,6 @@ propcache==0.3.0
 pydantic==2.10.6
 pydantic_core==2.27.2
 python-dotenv==1.0.1
+SQLAlchemy==2.0.41
 typing_extensions==4.12.2
 yarl==1.18.3
