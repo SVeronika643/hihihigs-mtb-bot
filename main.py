@@ -6,7 +6,7 @@ from aiogram.filters import Command
 from aiogram.types import BotCommand
 from handlers import handlers, callbacks
 from config import TOKEN
-
+from db import async_create_table
 from handlers.handlers import router
 from utils.logging import setup_logger  # Импорт логирования
 
@@ -38,4 +38,8 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(async_create_table())
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("End Script")
