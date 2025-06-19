@@ -102,7 +102,42 @@ async def load_profiles_handler(message: Message):
 from utils.parser import parse_codewars_profile  # если функция парсинга лежит в отдельном модуле
 from sqlalchemy import select
 from db import async_session, User
+@router.message(Command("getres"))
+async def get_results_handler(message: Message):
+     all_tasks = set()
 
+     async with async_session() as session:
+         # Получаем преподавателя
+         query = select(User).where(User.user_id == message.from_user.id)
+         result = await session.execute(query)
+         tutor = result.scalar()
+
+         if not tutor or not tutor.tutorcode:
+             await message.answer("Вы не являетесь преподавателем.")
+             return
+
+         # Получаем всех студентов, подписанных на этого преподавателя
+         query = select(User).where(User.subscribe == str(tutor.tutorcode))
+         result = await session.execute(query)
+        students = result.scalars().all()
+
+         if not students:
+             await message.answer("У вас пока нет студентов.")
+             return
+
+         for student in students:
+             if not student.username:
+                 continue
+             # Собираем ссылку на профиль студента
+             profile_url = f"https://www.codewars.com/users/{student.username.replace(' ', '%20')}"
+             tasks = parse_codewars_profile(profile_url)
+             all_tasks.update(tasks)
+
+         if all_tasks:
+             sorted_tasks = sorted(all_tasks)
+             await message.answer("Пройденные задачи:\n\n" + "\n".join(sorted_tasks))
+         else:
+            await message.answer("Не удалось получить задачи студентов.")
 
 
 
