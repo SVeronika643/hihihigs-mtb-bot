@@ -17,7 +17,8 @@ async def set_commands(bot: Bot):
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="status", description="Проверить статус"),
         BotCommand(command="help", description="Помощь"),
-        BotCommand(command='load',description="Загрузить задачи")
+        BotCommand(command='load',description="Загрузить задачи"),
+        BotCommand(command='getres', description="Посмотреть задачи студентов")
 
     ]
     await bot.set_my_commands(commands)
