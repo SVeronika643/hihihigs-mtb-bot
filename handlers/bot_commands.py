@@ -9,7 +9,8 @@ async def set_commands(bot: Bot) -> None:
         BotCommand(command="/start", description="Запускает бота"),
         BotCommand(command="/help", description="Выводит справочную информацию"),
         BotCommand(command="/status", description="Выводит статус пользователя"),
-        BotCommand(command="/load", description="Загружает ссылки")
+        BotCommand(command="/getres", description="Посмотреть задачи студентов"),
+        BotCommand(command="/checked", description="Ваши задачи проверены преподавателем")
 
     ]
     await bot.set_my_commands(commands)

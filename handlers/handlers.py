@@ -119,7 +119,7 @@ async def get_results_handler(message: Message):
          # Получаем всех студентов, подписанных на этого преподавателя
          query = select(User).where(User.subscribe == str(tutor.tutorcode))
          result = await session.execute(query)
-        students = result.scalars().all()
+         students = result.scalars().all()
 
          if not students:
              await message.answer("У вас пока нет студентов.")
@@ -140,7 +140,37 @@ async def get_results_handler(message: Message):
             await message.answer("Не удалось получить задачи студентов.")
 
 
+@router.message(Command("checked"))
+async def notify_students_handler(message: Message):
+    async with async_session() as session:
+        # Получаем преподавателя по user_id
+        query = select(User).where(User.user_id == message.from_user.id)
+        result = await session.execute(query)
+        tutor = result.scalar()
 
+        if not tutor or not tutor.tutorcode:
+            await message.answer("Вы не являетесь преподавателем.")
+            return
+
+        # Получаем студентов, подписанных на tutorcode преподавателя
+        query = select(User).where(User.subscribe == str(tutor.tutorcode))
+        result = await session.execute(query)
+        students = result.scalars().all()
+
+        if not students:
+            await message.answer("У вас пока нет студентов.")
+            return
+
+        count = 0
+        for student in students:
+            try:
+                await message.bot.send_message(student.user_id, "Ваши задачи проверены преподавателем.")
+                count += 1
+            except Exception as e:
+                logging.warning(f"Не удалось отправить сообщение студенту {student.user_id}: {e}")
+
+        await message.answer(f"Отправлено уведомлений: {count}")
+        logging.info(f"Преподаватель {message.from_user.id} отправил уведомления {count} студентам")
 
 @router.message(Command("help"))
 async def help_command(message: types.Message):
