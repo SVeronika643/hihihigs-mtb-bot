@@ -7,7 +7,8 @@ from aiogram.types import BotCommand
 from handlers import handlers, callbacks
 from config import TOKEN
 from db import async_create_table
-from handlers.handlers import router
+from handlers.handlers import router as handlers_router
+from handlers.callbacks import router as callbacks_router
 from utils.logging import setup_logger  # Импорт логирования
 
 # --- Функция установки команд ---
@@ -16,6 +17,8 @@ async def set_commands(bot: Bot):
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="status", description="Проверить статус"),
         BotCommand(command="help", description="Помощь"),
+        BotCommand(command='load',description="Загрузить задачи")
+
     ]
     await bot.set_my_commands(commands)
 

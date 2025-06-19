@@ -8,6 +8,8 @@ from sqlalchemy import select
 from db import async_session, User
 from .keyboard import keyboard_start
 from sqlalchemy import insert
+from utils.parser import parse_codewars_profile
+import re
 
 # информация о статусе
 status_string: str = """
@@ -17,7 +19,7 @@ UserName: {}
 # Создаём экземпляр Router
 router = Router()
 
-@router.message(CommandStart()) # /start
+@router.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
     async with async_session() as session:
         query = select(User).where(message.from_user.id == User.user_id)
@@ -65,6 +67,46 @@ async def command_status_handler(message: Message) -> None:
             await message.answer("Пользователь добавлен!")
             logging.info(f"Пользователь {message.from_user.username} добавлен в базу данных с ролью слушатель!")
 
+codewars_pattern = re.compile(r'^https?://(www\.)?codewars\.com/users/[^\s]+/?$')
+
+@router.message(Command("load"))
+async def load_profiles_handler(message: Message):
+    text = message.text.strip()
+
+    # Разделим по пробелу, чтобы отделить команду от аргументов
+    parts = text.split(" ", 1)
+    if len(parts) < 2:
+        await message.answer("Пожалуйста, отправьте ссылку(-и) после команды /load через запятую.")
+        return
+
+    links_raw = parts[1].strip()
+    links = [link.strip() for link in links_raw.split(",") if codewars_pattern.match(link.strip())]
+
+    if not links:
+        await message.answer("Пришли ссылку в формате https://www.codewars.com/users/...")
+        logging.info(f"user {message.from_user.id} прислал невалидные ссылки: {links_raw}")
+        return
+
+    results = []
+
+    for link in links:
+        tasks = parse_codewars_profile(link)
+        if tasks:
+            results.append("Задачи загружены для " + link + ":\n" + "\n".join(tasks))
+        else:
+            results.append(f"Не удалось получить задачи по ссылке: {link}")
+
+    await message.answer("\n\n".join(results))
+    logging.info(f"user {message.from_user.id} загрузил ссылки: {links}")
+
+from utils.parser import parse_codewars_profile  # если функция парсинга лежит в отдельном модуле
+from sqlalchemy import select
+from db import async_session, User
+
+
+
+
+
 @router.message(Command("help"))
 async def help_command(message: types.Message):
     await message.answer("Список доступных команд:\n/start — запустить бота\n/status — проверить статус\n/help — помощь\n/menu — открыть меню")
@@ -87,3 +129,4 @@ async def echo_handler(message: Message) -> None:
         # But not all the types is supported to be copied so need to handle it
         await message.answer("Nice try!")
         logging.info(f"user {message.from_user.id} leaves unhandled message unsuccessfully")
+
