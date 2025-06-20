@@ -30,3 +30,4 @@ python-dotenv==1.0.1
 SQLAlchemy==2.0.41
 typing_extensions==4.12.2
 yarl==1.18.3
+beautifulsoup==4.12.3
