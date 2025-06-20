@@ -6,8 +6,9 @@ from aiogram.filters import Command
 from aiogram.types import BotCommand
 from handlers import handlers, callbacks
 from config import TOKEN
-
-from handlers.handlers import router
+from db import async_create_table
+from handlers.handlers import router as handlers_router
+from handlers.callbacks import router as callbacks_router
 from utils.logging import setup_logger  # Импорт логирования
 
 # --- Функция установки команд ---
@@ -16,6 +17,10 @@ async def set_commands(bot: Bot):
         BotCommand(command="start", description="Запустить бота"),
         BotCommand(command="status", description="Проверить статус"),
         BotCommand(command="help", description="Помощь"),
+        BotCommand(command='load',description="Загрузить задачи"),
+        BotCommand(command='getres', description="Посмотреть задачи студентов"),
+        BotCommand(command="checked", description="Ваши задачи проверены преподавателем!")
+
     ]
     await bot.set_my_commands(commands)
 
@@ -38,4 +43,8 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(async_create_table())
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("End Script")
