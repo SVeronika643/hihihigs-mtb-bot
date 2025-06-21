@@ -38,8 +38,8 @@ async def main():
     dp.startup.register(set_commands)
 
     # Подключаем маршрутизаторы
-    dp.include_router(handlers.router)
-    dp.include_router(callbacks.router)
+    dp.include_router(handlers_router)
+    dp.include_router(callbacks_router)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
