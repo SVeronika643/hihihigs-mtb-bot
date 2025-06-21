@@ -59,19 +59,49 @@ async def command_status_handler(message: Message) -> None:
         await message.answer(info)
     logging.info(f"user {message.from_user.id} gets status ")
 
- @router.message(F.text.startswith("tutorcode-"))
-    async def start_student(message):
+
+@router.message(F.text.startswith("tutorcode-"))
+async def start_student(message: Message):
+    logging.info(f"Получено сообщение с кодом: {message.text}")
+    try:
+        code = message.text.split("-")[1].strip()
+
         async with async_session() as session:
-            new_user = {
-                "user_id": message.from_user.id,
-                "username": message.from_user.username,
-                "subscribe": str(message.text.split("-")[1])
-            }
-            insert_query = insert(User).values(new_user)
-            await session.execute(insert_query)
-            await session.commit()
-            await message.answer("Пользователь добавлен!")
-            logging.info(f"Пользователь {message.from_user.username} добавлен в базу данных с ролью слушатель!")
+            # Проверка кода преподавателя
+            query = select(User).where(User.tutorcode == code)
+            result = await session.execute(query)
+            tutor = result.scalar()
+
+            if not tutor:
+                await message.answer("Преподаватель с таким кодом не найден.")
+                return
+
+            # Проверка, есть ли пользователь
+            query = select(User).where(User.user_id == message.from_user.id)
+            result = await session.execute(query)
+            student = result.scalar()
+
+            if student:
+                student.subscribe = code
+                await session.commit()
+                await message.answer("Вы подписались на преподавателя!")
+                logging.info(f"{message.from_user.username} подписался на преподавателя {tutor.username}")
+            else:
+                new_user = {
+                    "user_id": message.from_user.id,
+                    "username": message.from_user.username,
+                    "subscribe": code
+                }
+                insert_query = insert(User).values(new_user)
+                await session.execute(insert_query)
+                await session.commit()
+                await message.answer("Вы зарегистрированы как слушатель!")
+                logging.info(
+                    f"{message.from_user.username} зарегистрирован и подписался на преподавателя {tutor.username}")
+
+    except Exception as e:
+        logging.exception("Ошибка при регистрации студента")
+        await message.answer("Произошла ошибка при обработке вашего кода. Попробуйте ещё раз.")
 
 codewars_pattern = re.compile(r'^https?://(www\.)?codewars\.com/users/[^\s]+/?$')
 
