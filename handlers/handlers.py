@@ -35,9 +35,9 @@ async def command_start_handler(message: Message) -> None:
         else:
             await message.answer("Выберите роль:", reply_markup=keyboard_start)
 
-    logging.info(f"user {message.from_user.id} starts bot")
+    (logging.info(f"user {message.from_user.id} starts bot")
 
-@router.message(Command("status")) # /status
+@router.message(Command("status"))) # /status
 async def command_status_handler(message: Message) -> None:
     async with async_session() as session:
         query = select(User).where(message.from_user.id == User.user_id)
@@ -59,7 +59,7 @@ async def command_status_handler(message: Message) -> None:
         await message.answer(info)
     logging.info(f"user {message.from_user.id} gets status ")
 
-    @router.message(F.text.startswith("tutorcode-"))
+ @router.message(F.text.startswith("tutorcode-"))
     async def start_student(message):
         async with async_session() as session:
             new_user = {
