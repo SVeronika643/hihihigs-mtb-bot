@@ -22,14 +22,20 @@ router = Router()
 @router.message(Command("start"))
 async def command_start_handler(message: Message) -> None:
     async with async_session() as session:
-        query = select(User).where(message.from_user.id == User.user_id)
+        # Ищем пользователя в базе
+        query = select(User).where(User.user_id == message.from_user.id)
         result = await session.execute(query)
-        if result.scalars().all():
-            info = "Чтобы продолжить, вызовите команду /status"
-            await message.answer(info)
+        user = result.scalar()
+
+        if user:
+            if user.subscribe:
+                await message.answer("Вы уже зарегистрированы и подписаны на преподавателя.\nМожете использовать команду /status.")
+            else:
+                await message.answer("Введите код преподавателя (в формате tutorcode-XXXXXX):")
         else:
-            await  message.answer("Выберите роль", reply_markup=keyboard_start)
-    logging.info(f"user {message.from_user.id} starts bot ")
+            await message.answer("Выберите роль:", reply_markup=keyboard_start)
+
+    logging.info(f"user {message.from_user.id} starts bot")
 
 @router.message(Command("status")) # /status
 async def command_status_handler(message: Message) -> None:
