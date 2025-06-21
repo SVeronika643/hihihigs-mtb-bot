@@ -172,40 +172,69 @@ from sqlalchemy import select
 from db import async_session, User
 @router.message(Command("getres"))
 async def get_results_handler(message: Message):
-     all_tasks = set()
+    import json
+    all_tasks = set()
 
-     async with async_session() as session:
-         # Получаем преподавателя
-         query = select(User).where(User.user_id == message.from_user.id)
-         result = await session.execute(query)
-         tutor = result.scalar()
+    async with async_session() as session:
+        # Получаем преподавателя
+        result = await session.execute(select(User).where(User.user_id == message.from_user.id))
+        tutor = result.scalar()
 
-         if not tutor or not tutor.tutorcode:
-             await message.answer("Вы не являетесь преподавателем.")
-             return
+        if not tutor or not tutor.tutorcode:
+            await message.answer("Вы не являетесь преподавателем.")
+            return
 
-         # Получаем всех студентов, подписанных на этого преподавателя
-         query = select(User).where(User.subscribe == str(tutor.tutorcode))
-         result = await session.execute(query)
-         students = result.scalars().all()
+        # Получаем всех студентов, подписанных на этого преподавателя
+        result = await session.execute(select(User).where(User.subscribe == str(tutor.tutorcode)))
+        students = result.scalars().all()
 
-         if not students:
-             await message.answer("У вас пока нет студентов.")
-             return
+        if not students:
+            await message.answer("У вас пока нет студентов.")
+            return
 
-         for student in students:
-             if not student.username:
-                 continue
-             # Собираем ссылку на профиль студента
-             profile_url = f"https://www.codewars.com/users/{student.username.replace(' ', '%20')}"
-             tasks = parse_codewars_profile(profile_url)
-             all_tasks.update(tasks)
+        for student in students:
+            print(f"[DEBUG] Студент: id={student.user_id}, telegram_username={student.username!r}")
 
-         if all_tasks:
-             sorted_tasks = sorted(all_tasks)
-             await message.answer("Пройденные задачи:\n\n" + "\n".join(sorted_tasks))
-         else:
+            if not student.extra:
+                print("[DEBUG] У студента нет поля extra.")
+                continue
+
+            try:
+                extra_data = json.loads(student.extra)
+            except Exception as e:
+                print(f"[DEBUG] Ошибка разбора extra: {e}")
+                continue
+
+            # Получаем список логинов Codewars, если есть
+            usernames = []
+            if "codewars_usernames" in extra_data:
+                usernames = extra_data["codewars_usernames"]
+            elif "codewars_username" in extra_data:
+                usernames = [extra_data["codewars_username"]]
+
+            if not usernames:
+                print("[DEBUG] Логины Codewars не найдены у студента.")
+                continue
+
+            for codewars_username in usernames:
+                profile_url = f"https://www.codewars.com/users/{codewars_username.replace(' ', '%20')}"
+                print(f"[DEBUG] Парсим: {profile_url}")
+                tasks = parse_codewars_profile(profile_url)
+
+                if not tasks:
+                    print(f"[DEBUG] Не удалось получить задачи по ссылке: {profile_url}")
+                    continue
+
+                print(f"[DEBUG] Получено задач: {len(tasks)}")
+                all_tasks.update(tasks)
+
+        if all_tasks:
+            sorted_tasks = sorted(all_tasks)
+            await message.answer("Пройденные задачи студентами:\n\n" + "\n".join(sorted_tasks))
+        else:
             await message.answer("Не удалось получить задачи студентов.")
+
+
 
 
 @router.message(Command("checked"))
