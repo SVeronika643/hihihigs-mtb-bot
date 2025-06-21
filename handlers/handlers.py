@@ -10,6 +10,11 @@ from .keyboard import keyboard_start
 from sqlalchemy import insert
 from utils.parser import parse_codewars_profile
 import re
+import json
+from sqlalchemy import update
+from uuid import uuid4
+
+
 
 # информация о статусе
 status_string: str = """
@@ -107,9 +112,9 @@ codewars_pattern = re.compile(r'^https?://(www\.)?codewars\.com/users/[^\s]+/?$'
 
 @router.message(Command("load"))
 async def load_profiles_handler(message: Message):
-    text = message.text.strip()
+    import json
 
-    # Разделим по пробелу, чтобы отделить команду от аргументов
+    text = message.text.strip()
     parts = text.split(" ", 1)
     if len(parts) < 2:
         await message.answer("Пожалуйста, отправьте ссылку(-и) после команды /load через запятую.")
@@ -119,21 +124,48 @@ async def load_profiles_handler(message: Message):
     links = [link.strip() for link in links_raw.split(",") if codewars_pattern.match(link.strip())]
 
     if not links:
-        await message.answer("Пришли ссылку в формате https://www.codewars.com/users/...")
-        logging.info(f"user {message.from_user.id} прислал невалидные ссылки: {links_raw}")
+        await message.answer("Пришлите ссылки в формате https://www.codewars.com/users/...")
         return
 
     results = []
 
-    for link in links:
-        tasks = parse_codewars_profile(link)
-        if tasks:
-            results.append("Задачи загружены для " + link + ":\n" + "\n".join(tasks))
-        else:
-            results.append(f"Не удалось получить задачи по ссылке: {link}")
+    async with async_session() as session:
+        # Получаем пользователя из базы
+        result = await session.execute(select(User).where(User.user_id == message.from_user.id))
+        user = result.scalar()
+
+        if user is None:
+            await message.answer("Пользователь не найден в базе.")
+            return
+
+        # Считываем существующие логины из extra
+        try:
+            existing_extra = json.loads(user.extra) if user.extra else {}
+            existing_usernames = set(existing_extra.get("codewars_usernames", []))
+        except Exception:
+            existing_usernames = set()
+
+        for link in links:
+            # Парсим задачи, чтобы проверить доступность профиля
+            tasks = parse_codewars_profile(link)
+            if tasks:
+                username_from_url = link.split("/")[-1].replace('%20', ' ')
+                existing_usernames.add(username_from_url)
+                results.append(f"Задачи загружены для {link}:\n" + "\n".join(tasks))
+            else:
+                results.append(f"Не удалось получить задачи по ссылке: {link}")
+
+        # Сохраняем обновленный список аккаунтов в extra
+        new_extra = {"codewars_usernames": list(existing_usernames)}
+        stmt = (
+            update(User)
+            .where(User.user_id == message.from_user.id)
+            .values(extra=json.dumps(new_extra))
+        )
+        await session.execute(stmt)
+        await session.commit()
 
     await message.answer("\n\n".join(results))
-    logging.info(f"user {message.from_user.id} загрузил ссылки: {links}")
 
 from utils.parser import parse_codewars_profile  # если функция парсинга лежит в отдельном модуле
 from sqlalchemy import select
