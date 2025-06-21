@@ -216,18 +216,5 @@ async def help_command(message: types.Message):
 async def menu_command(message: types.Message):
     await message.answer("Выберите пункт меню:", reply_markup=keyboard())
 
-@router.message()
-async def echo_handler(message: Message) -> None:
 
-    try:
-        # Send a copy of the received message
-        await message.send_copy(chat_id=message.chat.id)
-        logging.info(f"user {message.from_user.id} leaves unhandled message")
-    except TypeError:
-        # But not all the types is supported to be copied so need to handle it
-        await message.answer("Nice try!")
-        logging.info(f"user {message.from_user.id} leaves unhandled message unsuccessfully")
-        # But not all the types is supported to be copied so need to handle it
-        await message.answer("Nice try!")
-        logging.info(f"user {message.from_user.id} leaves unhandled message unsuccessfully")
 
