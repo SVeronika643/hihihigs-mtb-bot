@@ -42,7 +42,7 @@ async def command_start_handler(message: Message) -> None:
 
     logging.info(f"user {message.from_user.id} starts bot")
 
-@router.message(Command("status"))) # /status
+@router.message(Command("status")) # /status
 async def command_status_handler(message: Message) -> None:
     async with async_session() as session:
         query = select(User).where(message.from_user.id == User.user_id)
