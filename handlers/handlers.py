@@ -40,7 +40,7 @@ async def command_start_handler(message: Message) -> None:
         else:
             await message.answer("Выберите роль:", reply_markup=keyboard_start)
 
-    (logging.info(f"user {message.from_user.id} starts bot")
+    logging.info(f"user {message.from_user.id} starts bot")
 
 @router.message(Command("status"))) # /status
 async def command_status_handler(message: Message) -> None:
